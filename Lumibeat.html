@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LumiBeat - 官方宣傳與開發教學網站</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121214',
+                        cardBg: 'rgba(26, 26, 30, 0.75)',
+                        borderGlass: 'rgba(255, 85, 0, 0.25)',
+                        accentOrange: '#FF5500',
+                        accentFlame: '#FF8800',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            position: relative;
+            isolation: isolate;
+            background: #0b0d12;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        body::before,
+        body::after {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            content: "";
+            pointer-events: none;
+        }
+        body::before {
+            background:
+                radial-gradient(ellipse at 12% 9%, rgba(32, 132, 145, .19), transparent 34%),
+                radial-gradient(ellipse at 86% 20%, rgba(255, 104, 67, .13), transparent 31%),
+                radial-gradient(ellipse at 66% 78%, rgba(100, 79, 181, .12), transparent 36%);
+        }
+        body::after {
+            background-image:
+                linear-gradient(rgba(196, 220, 232, .025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(196, 220, 232, .025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(to bottom, black, transparent 82%);
+        }
+        .glass-panel {
+            background: rgba(17, 20, 28, 0.76);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(150, 183, 197, 0.14);
+        }
+        .glass-panel-hover:hover {
+            border-color: rgba(255, 142, 99, 0.48);
+            box-shadow: 0 14px 40px rgba(4, 8, 16, 0.32);
+        }
+        .glow-text {
+            text-shadow: 0 0 28px rgba(255, 117, 78, 0.35);
+        }
+        .glow-box {
+            box-shadow: 0 22px 70px rgba(2, 5, 12, 0.45), 0 0 45px rgba(255, 117, 78, 0.1);
+        }
+        .code-playground {
+            background: rgba(10, 13, 20, .84);
+        }
+        .playground-editor {
+            min-height: 270px;
+            resize: vertical;
+            tab-size: 2;
+        }
+        .code-preview {
+            --demo-accent: #ff7a59;
+            --fall-speed: 2.4s;
+            min-height: 270px;
+            background:
+                radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--demo-accent) 16%, transparent), transparent 54%),
+                linear-gradient(180deg, #101724, #0b1019);
+        }
+        .code-preview-lanes {
+            position: absolute;
+            inset: 0 18%;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            background: rgba(3, 7, 14, .43);
+        }
+        .code-preview-lane {
+            position: relative;
+            border-right: 1px solid rgba(174, 202, 214, .13);
+        }
+        .code-preview-lane:first-child {
+            border-left: 1px solid rgba(174, 202, 214, .13);
+        }
+        .code-preview-lane::after {
+            position: absolute;
+            right: 0;
+            bottom: 23%;
+            left: 0;
+            height: 2px;
+            background: var(--demo-accent);
+            box-shadow: 0 0 13px var(--demo-accent);
+            content: "";
+            opacity: .8;
+        }
+        .code-preview-key {
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            color: #d7e4eb;
+            font-size: 11px;
+            font-weight: 700;
+            transform: translateX(-50%);
+        }
+        .code-preview-note {
+            position: absolute;
+            top: var(--note-top);
+            left: 50%;
+            width: 25px;
+            height: 25px;
+            border: 2px solid var(--demo-accent);
+            border-radius: 7px;
+            background: color-mix(in srgb, var(--demo-accent) 24%, #121722);
+            box-shadow: 0 0 18px color-mix(in srgb, var(--demo-accent) 40%, transparent);
+            transform: translateX(-50%);
+            animation: preview-fall var(--fall-speed) ease-in-out infinite alternate;
+            animation-delay: var(--note-delay);
+        }
+        @keyframes preview-fall {
+            to { translate: 0 68px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121214;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF5500;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-gray-100 selection:bg-orange-500 selection:text-white">
+
+    <!-- 頂部導覽列 -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-orange-500/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#hero" aria-label="LumiBeat 首頁" class="flex items-center space-x-3">
+                <img src="login.png" alt="LumiBeat" class="h-10 w-10 object-contain">
+                <span class="text-2xl font-black tracking-wider bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">LumiBeat</span>
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                <a href="#hero" class="hover:text-orange-500 transition">首頁</a>
+                <a href="#showcase" class="hover:text-orange-500 transition">遊戲介紹</a>
+                <a href="#tutorial" class="hover:text-orange-500 transition text-orange-400 font-semibold"><i class="fa-solid fa-code mr-1"></i> 開發教學</a>
+                <a href="#download" class="hover:text-orange-500 transition">下載專區</a>
+            </nav>
+            <div>
+                <a href="#download" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 font-bold text-white shadow-lg shadow-orange-600/30 hover:scale-105 transition transform inline-block">
+                    立即體驗
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 1. Hero 頂部主視覺區 -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <!-- 背景光暈裝飾 -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/15 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+            <!-- 文字與標語 -->
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-semibold uppercase tracking-widest">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                    <span>PYTHON RHYTHM GAME</span>
+                </div>
+                <h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
+                    <span class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 bg-clip-text text-transparent glow-text">LumiBeat</span>
+                </h1>
+                <p class="text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0">
+                    由 卡式爐 團隊打造，以 Python 開發的下落式節奏遊戲。
+                </p>
+                <div class="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
+                    <a href="#tutorial" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 font-bold text-white shadow-xl shadow-orange-600/40 hover:scale-105 transition transform flex items-center space-x-2">
+                        <i class="fa-solid fa-laptop-code"></i>
+                        <span>探索開發教學</span>
+                    </a>
+                    <a href="#showcase" class="px-8 py-4 rounded-2xl glass-panel glass-panel-hover font-semibold text-gray-200 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-gamepad text-orange-500"></i>
+                        <span>觀看遊戲實機</span>
+                    </a>
+                </div>
+
+                <!-- 核心特色小標籤 -->
+                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-800">
+                    <div class="glass-panel p-3 rounded-xl text-center">
+                        <div class="text-orange-500 font-bold text-xl">鋼琴下落式玩法</div>
+                        <div class="text-xs text-gray-400 mt-1">動態下落音符</div>
+                    </div>
+                    <div class="glass-panel p-3 rounded-xl text-center">
+                        <div class="text-orange-500 font-bold text-xl">遊戲穩定性</div>
+                        <div class="text-xs text-gray-400 mt-1">絲滑流暢判定</div>
+                    </div>
+                    <div class="glass-panel p-3 rounded-xl text-center">
+                        <div class="text-orange-500 font-bold text-xl">遊戲譜面設計</div>
+                        <div class="text-xs text-gray-400 mt-1">自訂譜面編輯</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 視覺圖片展示 (吉祥物與六角恐龍) -->
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="relative w-full max-w-md aspect-square rounded-3xl glass-panel p-4 glow-box flex items-center justify-center overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-orange-600/20 to-transparent opacity-50"></div>
+                    <!-- 載入使用者提供的第一張 LOGO 圖片 -->
+                    <img src="login.png" alt="LumiBeat Mascot & Logo" class="relative z-10 w-full h-full object-contain rounded-2xl group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/400x400/1A1A1A/FF5500?text=LumiBeat+Logo';">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Game Showcase 遊戲展示區 -->
+    <section id="showcase" class="py-24 px-4 sm:px-6 lg:px-8 bg-darkBg/50 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl sm:text-4xl font-black mb-4">遊戲介紹</h2>
+                <p class="text-gray-400">選曲畫面/遊戲美術皆能自由控制</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 選曲畫面展示卡片 -->
+                <div class="glass-panel rounded-3xl p-6 glass-panel-hover transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-lg bg-orange-500/20 text-orange-400 text-xs font-bold uppercase">UI 介面設計</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">選曲系統</h3>
+                        <p class="text-gray-400 text-sm mb-6">
+                            難易度切換（Easy, Normal, Hard）與 Auto 模式開關。
+                        </p>
+                    </div>
+                    <div class="rounded-2xl overflow-hidden border border-orange-500/20 aspect-video bg-black/40">
+                        <img src="image_5dbf97.png" alt="LumiBeat Selection Screen" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x337/1A1A1A/FF5500?text=Select+Track+Screen';">
+                    </div>
+                </div>
+
+                <!-- 遊戲實機畫面展示卡片 -->
+                <div class="glass-panel rounded-3xl p-6 glass-panel-hover transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-lg bg-orange-500/20 text-orange-400 text-xs font-bold uppercase">實機遊玩</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">降落式音符與連擊判定</h3>
+                        <p class="text-gray-400 text-sm mb-6">
+                            對應鍵盤判定、動態 Combo 計數與即時分數累積，增加遊戲豐富度。
+                        </p>
+                    </div>
+                    <div class="rounded-2xl overflow-hidden border border-orange-500/20 aspect-video bg-black/40">
+                        <img src="image_5d6cfd.png" alt="LumiBeat Gameplay Screen" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x337/1A1A1A/FF5500?text=4K+Gameplay+Screen';">
+                    </div>
+                </div>
+
+                <!-- 遊戲實機影片 -->
+                <div class="md:col-span-2 glass-panel rounded-3xl p-6 sm:p-8 glass-panel-hover transition duration-300">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
+                        <div class="md:col-span-2">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-lg bg-orange-500/20 text-orange-400 text-xs font-bold uppercase">影片展示</span>
+                            </div>
+                            <h3 class="text-xl sm:text-2xl font-bold mb-3">看看 LumiBeat 實際遊玩的節奏</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                影片展示遊戲畫面與音符判定。按下播放即可觀看，也可以使用播放器控制列調整音量或切換全螢幕。
+                            </p>
+                        </div>
+                        <div class="md:col-span-3 rounded-2xl overflow-hidden border border-cyan-500/20 aspect-video bg-black/50">
+                            <video
+                                class="w-full h-full object-contain"
+                                controls
+                                playsinline
+                                preload="metadata"
+                                poster="gameplay-demo-poster.jpg"
+                                aria-label="LumiBeat 遊戲實機展示影片"
+                            >
+                                <source src="gameplay-demo.mp4" type="video/mp4">
+                                您的瀏覽器不支援 HTML5 影片，請改用支援 MP4 的瀏覽器觀看。
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. How It Works / Dev Guide 開發教學區 -->
+    <section id="tutorial" class="py-24 px-4 sm:px-6 lg:px-8 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-semibold uppercase tracking-widest mb-3">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>邊宣傳邊教學</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black mb-4">如何從零打造一款 4 軌道節奏遊戲？</h2>
+                <p class="text-gray-400">我們將 LumiBeat 的核心架構拆解為三大模組：遊戲架構解析、音訊同步與判定邏輯、以及自訂譜面編輯器製作。</p>
+            </div>
+
+            <!-- 教學內容 Tabs / 步驟 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                <!-- 步驟 1 -->
+                <div class="glass-panel p-8 rounded-3xl border-t-4 border-orange-500 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-400 font-bold text-xl mb-6">01</div>
+                        <h3 class="text-xl font-bold mb-3">架構解析與狀態管理</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                            一款優秀的音遊需要清晰的狀態機（State Machine）。我們透過迴圈切換主選單（Menu）、曲目選擇（Track Select）、遊戲進行（Gameplay）與結算畫面（Result）。
+                        </p>
+                    </div>
+                    <ul class="space-y-2 text-xs text-gray-300">
+                        <li class="flex items-center"><i class="fa-solid fa-check text-orange-500 mr-2"></i> 畫面繪製與事件驅動分離</li>
+                        <li class="flex items-center"><i class="fa-solid fa-check text-orange-500 mr-2"></i> 響應式介面排版縮放</li>
+                    </ul>
+                </div>
+
+                <!-- 步驟 2 -->
+                <div class="glass-panel p-8 rounded-3xl border-t-4 border-amber-500 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xl mb-6">02</div>
+                        <h3 class="text-xl font-bold mb-3">音訊同步與 4K 判定</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                            節奏遊戲的靈魂在於「音畫同步」。利用音樂播放的時間戳（Milliseconds / Tick）對照下落音符的座標，並透過 D、F、J、K 鍵進行碰撞判定。
+                        </p>
+                    </div>
+                    <ul class="space-y-2 text-xs text-gray-300">
+                        <li class="flex items-center"><i class="fa-solid fa-check text-amber-500 mr-2"></i> 毫秒級時間軸對齊</li>
+                        <li class="flex items-center"><i class="fa-solid fa-check text-amber-500 mr-2"></i> Perfect / Good / Miss 判定區間</li>
+                    </ul>
+                </div>
+
+                <!-- 步驟 3 -->
+                <div class="glass-panel p-8 rounded-3xl border-t-4 border-yellow-500 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-bold text-xl mb-6">03</div>
+                        <h3 class="text-xl font-bold mb-3">自訂譜面編輯器</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                            讓玩家能夠自己製作喜歡的歌曲譜面！透過 JSON 格式儲存音符時間、軌道編號與持續長度，實現無限擴充的音樂內容。
+                        </p>
+                    </div>
+                    <ul class="space-y-2 text-xs text-gray-300">
+                        <li class="flex items-center"><i class="fa-solid fa-check text-yellow-500 mr-2"></i> JSON 譜面結構設計</li>
+                        <li class="flex items-center"><i class="fa-solid fa-check text-yellow-500 mr-2"></i> 即時預覽與編輯工具</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 程式碼範例區 (Python / Pygame 核心概念) -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-orange-500/30">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-800">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="text-sm font-mono text-gray-400 ml-2">lumibeat_core_engine.py</span>
+                    </div>
+                    <span class="text-xs bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-mono">Python / Pygame 核心架構</span>
+                </div>
+                <pre class="overflow-x-auto text-xs sm:text-sm font-mono text-gray-300 leading-relaxed bg-black/40 p-6 rounded-2xl border border-gray-800"><code><span class="text-orange-400">import</span> pygame
+<span class="text-orange-400">import</span> sys
+
+<span class="text-gray-500"># 初始化 Pygame 與 4K 節奏遊戲核心參數</span>
+pygame.init()
+SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption(<span class="text-green-300">"LumiBeat - Dev Engine"</span>)
+
+<span class="text-orange-400">class</span> <span class="text-yellow-300">Note</span>:
+    <span class="text-orange-400">def</span> <span class="text-blue-300">__init__</span>(self, lane, target_time):
+        self.lane = lane              # 0, 1, 2, 3 對應 D, F, J, K
+        self.target_time = target_time  # 毫秒時間戳
+        self.y = -50                  # 初始畫面 Y 座標
+        self.hit = <span class="text-orange-400">False</span>
+
+    <span class="text-orange-400">def</span> <span class="text-blue-300">update</span>(self, speed):
+        self.y += speed               # 根據下落速度更新座標
+
+<span class="text-orange-400">def</span> <span class="text-blue-300">main_game_loop</span>():
+    clock = pygame.time.Clock()
+    running = <span class="text-orange-400">True</span>
+    notes = [Note(0, 1000), Note(2, 1500)]  # 範例譜面資料
+    
+    <span class="text-orange-400">while</span> running:
+        <span class="text-orange-400">for</span> event <span class="text-orange-400">in</span> pygame.event.get():
+            <span class="text-orange-400">if</span> event.type == pygame.QUIT:
+                running = <span class="text-orange-400">False</span>
+            <span class="text-orange-400">elif</span> event.type == pygame.KEYDOWN:
+                <span class="text-gray-500"># 4K 按鍵判定 (D, F, J, K)</span>
+                <span class="text-orange-400">if</span> event.key == pygame.K_d:
+                    check_hit(0, notes)
+                <span class="text-orange-400">elif</span> event.key == pygame.K_f:
+                    check_hit(1, notes)
+
+        screen.fill((18, 18, 20))
+        <span class="text-gray-550"># 繪製 4 條音符落下軌道與 Combo 分數</span>
+        pygame.display.flip()
+        clock.tick(60)
+
+<span class="text-orange-400">if</span> __name__ == <span class="text-green-300">"__main__"</span>:
+    main_game_loop()</code></pre>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="glass-panel code-playground rounded-3xl p-6 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+                <p class="text-xs uppercase tracking-[.2em] text-cyan-300 font-bold">Try it yourself</p>
+                <h3 class="text-xl font-bold mt-2">改一段譜面，看看遊戲怎麼變</h3>
+            </div>
+            <span class="text-xs font-mono text-gray-500">beatmap.json</span>
+        </div>
+        <p class="text-sm text-gray-400 leading-relaxed mb-4">
+            編輯音符軌道、拍點、下落速度或主色，再按「套用」更新右側預覽。這個練習使用受限的 JSON 設定，不會執行任意程式碼。
+        </p>
+        <label class="sr-only" for="beatmap-editor">可編輯的 JSON 譜面設定</label>
+        <textarea id="beatmap-editor" class="playground-editor w-full rounded-2xl border border-gray-700 bg-black/40 p-4 font-mono text-xs sm:text-sm leading-6 text-cyan-100 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20" spellcheck="false" aria-describedby="beatmap-help"></textarea>
+        <p id="beatmap-help" class="mt-3 text-xs text-gray-500">lane 可用 D、F、J、K；beat 決定音符排列位置，speed 可設 0.6–3.2。</p>
+        <div class="flex flex-wrap items-center gap-3 mt-5">
+            <button id="apply-beatmap" type="button" class="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-400 font-bold text-gray-950 hover:brightness-110 transition">套用到預覽</button>
+            <button id="reset-beatmap" type="button" class="px-5 py-3 rounded-xl border border-gray-700 text-gray-300 hover:border-gray-500 transition">還原範例</button>
+            <p id="beatmap-status" class="text-xs text-gray-400" role="status" aria-live="polite"></p>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-3xl p-6 sm:p-8">
+        <div class="flex items-center justify-between gap-3 mb-4">
+            <div>
+                <p class="text-xs uppercase tracking-[.2em] text-orange-300 font-bold">Live preview</p>
+                <h3 class="text-xl font-bold mt-2">譜面視覺化</h3>
+            </div>
+            <span id="preview-summary" class="text-xs text-gray-400">4 lanes · 0 notes</span>
+        </div>
+        <div id="beatmap-preview" class="code-preview relative overflow-hidden rounded-2xl border border-gray-700" aria-label="譜面設定的即時預覽">
+            <div id="preview-lanes" class="code-preview-lanes" aria-hidden="true"></div>
+        </div>
+        <p class="mt-4 text-xs text-gray-500">試著把音符移到不同軌道，或調整 speed 與 accent，觀察視覺回饋。</p>
+    </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Developer Contact 開發者聯絡方式 -->
+    <section id="download" class="py-24 px-4 sm:px-6 lg:px-8 bg-darkBg/50">
+        <div class="max-w-5xl mx-auto glass-panel rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden glow-box">
+            <div class="absolute inset-0 bg-gradient-to-r from-orange-600/10 via-amber-500/10 to-transparent pointer-events-none"></div>
+            
+            <div class="relative z-10 max-w-2xl mx-auto space-y-6">
+                <a href="#hero" aria-label="LumiBeat 首頁" class="inline-flex items-center space-x-3">
+                    <img src="login.png" alt="LumiBeat" class="h-10 sm:h-12 w-auto object-contain">
+                    <span class="text-2xl sm:text-3xl font-black tracking-wider bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">LumiBeat</span>
+                </a>
+                <h2 class="text-3xl sm:text-5xl font-black">聯絡開發者</h2>
+                <p class="text-gray-300">
+                    對 LumiBeat 或開發內容有任何問題，歡迎透過以下方式聯絡。
+                </p>
+                
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <a href="https://www.instagram.com/kashru_250817/" target="_blank" rel="noopener noreferrer" aria-label="在新分頁開啟開發者 Instagram" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 font-bold text-white shadow-xl shadow-orange-600/40 hover:scale-105 transition transform flex items-center space-x-3">
+                        <i class="fa-brands fa-instagram text-xl"></i>
+                        <span>Instagram @kashru_250817</span>
+                    </a>
+                    <a href="mailto:sanfeng.service@gmail.com" class="px-8 py-4 rounded-2xl glass-panel glass-panel-hover font-semibold text-gray-200 transition flex items-center space-x-3">
+                        <i class="fa-solid fa-envelope text-xl text-orange-500"></i>
+                        <span>sanfeng.service@gmail.com</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 訊息提示彈窗 (替代 alert) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-300 glass-panel border border-orange-500/50 px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3">
+        <i class="fa-solid fa-circle-check text-orange-500 text-xl"></i>
+        <span id="toast-text" class="text-sm font-semibold text-gray-200">提示訊息</span>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer class="py-8 text-center text-xs text-gray-500 border-t border-gray-900">
+        <p>&copy; 2026 LumiBeat Project. All rights reserved. Designed with Dark Tech Glassmorphism Aesthetics.</p>
+    </footer>
+
+    <script>
+        // 自訂非阻塞式訊息提示函式 (嚴格遵循不用 alert)
+        function showMsg(text) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toast-text');
+            toastText.innerText = text;
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0');
+            }, 3000);
+        }
+
+        const beatmapEditor = document.getElementById('beatmap-editor');
+        const previewLanes = document.getElementById('preview-lanes');
+        const beatmapPreview = document.getElementById('beatmap-preview');
+        const beatmapStatus = document.getElementById('beatmap-status');
+        const previewSummary = document.getElementById('preview-summary');
+        const defaultBeatmap = {
+            speed: 1.6,
+            accent: '#ff7a59',
+            notes: [
+                { lane: 'D', beat: 0 },
+                { lane: 'J', beat: 1 },
+                { lane: 'F', beat: 2 },
+                { lane: 'K', beat: 3 },
+                { lane: 'D', beat: 4 }
+            ]
+        };
+        const laneNames = ['D', 'F', 'J', 'K'];
+
+        function renderBeatmap(config) {
+            previewLanes.replaceChildren();
+            const laneElements = laneNames.map((name) => {
+                const lane = document.createElement('div');
+                lane.className = 'code-preview-lane';
+                const key = document.createElement('span');
+                key.className = 'code-preview-key';
+                key.textContent = name;
+                lane.append(key);
+                previewLanes.append(lane);
+                return lane;
+            });
+            const maxBeat = Math.max(...config.notes.map((note) => note.beat), 1);
+            config.notes.forEach((note, index) => {
+                const marker = document.createElement('span');
+                marker.className = 'code-preview-note';
+                marker.style.setProperty('--note-top', `${8 + (note.beat / maxBeat) * 55}%`);
+                marker.style.setProperty('--note-delay', `${index * -0.18}s`);
+                laneElements[laneNames.indexOf(note.lane)].append(marker);
+            });
+            beatmapPreview.style.setProperty('--demo-accent', config.accent);
+            beatmapPreview.style.setProperty('--fall-speed', `${3.4 / config.speed}s`);
+            previewSummary.textContent = `4 lanes · ${config.notes.length} notes · ${config.speed}× speed`;
+        }
+
+        function applyBeatmap() {
+            let config;
+            try {
+                config = JSON.parse(beatmapEditor.value);
+            } catch (error) {
+                beatmapStatus.textContent = 'JSON 格式錯誤，請檢查括號、逗號與引號。';
+                beatmapStatus.className = 'text-xs text-rose-300';
+                return;
+            }
+
+            const validObject = config && typeof config === 'object' && !Array.isArray(config);
+            const validSpeed = validObject && Number.isFinite(config.speed) && config.speed >= 0.6 && config.speed <= 3.2;
+            const validAccent = validObject && typeof config.accent === 'string' && /^#[\da-fA-F]{6}$/.test(config.accent);
+            const validNotes = validObject && Array.isArray(config.notes) && config.notes.length > 0 && config.notes.length <= 24
+                && config.notes.every((note) => note && laneNames.includes(note.lane) && Number.isFinite(note.beat) && note.beat >= 0 && note.beat <= 16);
+
+            if (!validSpeed || !validAccent || !validNotes) {
+                beatmapStatus.textContent = '設定不符合格式：speed 需為 0.6–3.2、accent 需為 HEX 色碼，notes 需有 1–24 個有效音符。';
+                beatmapStatus.className = 'text-xs text-rose-300';
+                return;
+            }
+
+            renderBeatmap(config);
+            beatmapStatus.textContent = '譜面已套用，右側預覽已更新。';
+            beatmapStatus.className = 'text-xs text-emerald-300';
+        }
+
+        function resetBeatmap() {
+            beatmapEditor.value = JSON.stringify(defaultBeatmap, null, 2);
+            applyBeatmap();
+        }
+
+        document.getElementById('apply-beatmap').addEventListener('click', applyBeatmap);
+        document.getElementById('reset-beatmap').addEventListener('click', resetBeatmap);
+        resetBeatmap();
+    </script>
+</body>
+</html>
